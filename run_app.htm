@@ -57,15 +57,8 @@
     const result = document.getElementById('result');
 
     function getApiUrl() {
-      if (window.location.protocol === 'file:') {
-        return 'http://127.0.0.1:8001/api/test-connection';
-      }
-
-      if (window.location.port === '8001') {
-        return '/api/test-connection';
-      }
-
-      return 'http://127.0.0.1:8001/api/test-connection';
+      // Em produção, usa URL relativa para funcionar em qualquer domínio/porta
+      return '/api/test-connection';
     }
 
     button.addEventListener('click', async function () {
@@ -92,7 +85,7 @@
         result.textContent = JSON.stringify(data, null, 2);
       } catch (error) {
         result.className = 'err';
-        result.textContent = 'Falha ao chamar o servidor: ' + error.message;
+        result.textContent = 'Falha ao chamar o servidor: ' + error.message + '\n\nVerifique se o app.py está rodando.';
       }
     });
   </script>

@@ -100,17 +100,24 @@ def test_mysql_connection(config: dict) -> dict:
 
 
 class AppHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        """Suprime logs padrão de requisição."""
+        pass
+
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_cors_headers()
         self.end_headers()
 
     def do_GET(self):
-        if self.path in ["/", "/run_app.htm"]:
+        # Normaliza a rota removendo prefixo `/links` se presente
+        path = self.path.split('?')[0]  # Remove query string
+        
+        if path in ["/", "/run_app.htm"]:
             self.serve_html()
             return
 
-        if self.path == "/api/test-connection":
+        if path in ["/api/test-connection", "/links/api/test-connection"]:
             self.serve_connection_test()
             return
 
