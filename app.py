@@ -177,7 +177,8 @@ class AppHandler(BaseHTTPRequestHandler):
         self.send_json(result, 200 if result.get("ok") else 500)
 
 
-def project_root = get_project_root()
+def main():
+    project_root = get_project_root()
     print(f"Raiz do projeto: {project_root}")
     
     host = "0.0.0.0"  # Escuta em todas as interfaces, necessário para hospedagem compartilhada
@@ -190,8 +191,7 @@ def project_root = get_project_root()
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nServidor parado.")
-        sys.exit(0iado em http://{host}:{port}")
-    server.serve_forever()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
