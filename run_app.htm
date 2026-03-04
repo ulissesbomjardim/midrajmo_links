@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste de Conexão MySQL</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: Arial, sans-serif;
+    }
+    .card {
+      width: min(560px, 92vw);
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 20px;
+    }
+    h1 { margin-top: 0; }
+    button {
+      background: #22d3ee;
+      color: #05202a;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    pre {
+      margin-top: 14px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ok { color: #22c55e; }
+    .err { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Teste de Conexão MySQL</h1>
+    <p>Clique para testar a conexão usando as credenciais do arquivo <b>.env</b>.</p>
+    <button id="runTest">Executar teste</button>
+    <pre id="result">Aguardando execução...</pre>
+  </div>
+
+  <script>
+    const button = document.getElementById('runTest');
+    const result = document.getElementById('result');
+
+    function getApiUrl() {
+      if (window.location.protocol === 'file:') {
+        return 'http://127.0.0.1:8001/api/test-connection';
+      }
+
+      if (window.location.port === '8001') {
+        return '/api/test-connection';
+      }
+
+      return 'http://127.0.0.1:8001/api/test-connection';
+    }
+
+    button.addEventListener('click', async function () {
+      result.className = '';
+      result.textContent = 'Executando...';
+
+      try {
+        const response = await fetch(getApiUrl());
+        const rawText = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(rawText);
+        } catch (_) {
+          throw new Error('Resposta inválida do servidor (não é JSON). Verifique se o app.py está rodando em http://127.0.0.1:8001');
+        }
+
+        if (data.ok) {
+          result.className = 'ok';
+        } else {
+          result.className = 'err';
+        }
+
+        result.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.className = 'err';
+        result.textContent = 'Falha ao chamar o servidor: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
