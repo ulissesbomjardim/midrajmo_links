@@ -48,33 +48,62 @@
   <div class="card">
     <h1>Teste de Conexão MySQL</h1>
     <p>Clique para testar a conexão usando as credenciais do arquivo <b>.env</b>.</p>
+    <button id="healthBtn">Verificar servidor</button>
     <button id="runTest">Executar teste</button>
     <pre id="result">Aguardando execução...</pre>
   </div>
 
   <script>
+    const healthBtn = document.getElementById('healthBtn');
     const button = document.getElementById('runTest');
     const result = document.getElementById('result');
 
-    function getApiUrl() {
+    function getApiUrl(endpoint) {
       // Detecta se está em /links/ ou raiz
       const pathname = window.location.pathname;
       
-      // Se está em /links/run_app.htm, volta para /links e chama /links/api/test-connection
+      // Se está em /links/run_app.htm, volta para /links e chama /links/api/...
       if (pathname.includes('/links/')) {
-        return '/links/api/test-connection';
+        return '/links' + endpoint;
       }
       
-      // Se está em localhost:8001/run_app.htm, chama /api/test-connection
-      return '/api/test-connection';
+      // Se está em localhost:8001/run_app.htm, chama /api/...
+      return endpoint;
     }
+
+    healthBtn.addEventListener('click', async function () {
+      result.className = '';
+      result.textContent = 'Verificando servidor...';
+
+      try {
+        const url = getApiUrl('/health');
+        console.log('Health check:', url);
+        
+        const response = await fetch(url);
+        const rawText = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(rawText);
+        } catch (_) {
+          console.error('Resposta não é JSON:', rawText.substring(0, 500));
+          throw new Error('Resposta inválida: ' + rawText.substring(0, 100));
+        }
+
+        result.className = 'ok';
+        result.textContent = 'Servidor respondendo:\n' + JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.className = 'err';
+        result.textContent = 'Servidor não está respondendo:\n' + error.message;
+      }
+    });
 
     button.addEventListener('click', async function () {
       result.className = '';
       result.textContent = 'Executando...';
 
       try {
-        const url = getApiUrl();
+        const url = getApiUrl('/api/test-connection');
         console.log('Chamando:', url);
         
         const response = await fetch(url);

@@ -123,22 +123,30 @@ class AppHandler(BaseHTTPRequestHandler):
             self.serve_html()
             return
 
+        if normalized_path == "/health":
+            self.send_json({"ok": True, "message": "App rodando"}, 200)
+            return
+
         if normalized_path == "/api/test-connection":
             self.serve_connection_test()
             return
 
-        payload = json.dumps({"ok": False, "message": "Rota não encontrada: " + path}).encode("utf-8")
-        self.send_response(404)
-        self.send_cors_headers()
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
+        self.send_json({"ok": False, "message": "Rota não encontrada: " + normalized_path}, 404)
 
     def send_cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+    def send_json(self, data, status_code=200):
+        """Envia resposta JSON com CORS headers."""
+        payload = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        self.send_response(status_code)
+        self.send_cors_headers()
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
     def serve_html(self):
         project_root = get_project_root()
@@ -166,14 +174,7 @@ class AppHandler(BaseHTTPRequestHandler):
         env_path = project_root / ".env"
         config = parse_env_file(env_path)
         result = test_mysql_connection(config)
-
-        payload = json.dumps(result, ensure_ascii=False).encode("utf-8")
-        self.send_response(200 if result.get("ok") else 500)
-        self.send_cors_headers()
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
+        self.send_json(result, 200 if result.get("ok") else 500)
 
 
 def project_root = get_project_root()
