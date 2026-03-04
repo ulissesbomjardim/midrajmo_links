@@ -113,15 +113,21 @@ class AppHandler(BaseHTTPRequestHandler):
         # Normaliza a rota removendo prefixo `/links` se presente
         path = self.path.split('?')[0]  # Remove query string
         
-        if path in ["/", "/run_app.htm"]:
+        # Remove prefixo /links se estiver presente
+        if path.startswith('/links/'):
+            normalized_path = '/' + path[7:]  # Remove `/links`
+        else:
+            normalized_path = path
+        
+        if normalized_path in ["/", "/run_app.htm"]:
             self.serve_html()
             return
 
-        if path in ["/api/test-connection", "/links/api/test-connection"]:
+        if normalized_path == "/api/test-connection":
             self.serve_connection_test()
             return
 
-        payload = json.dumps({"ok": False, "message": "Rota não encontrada."}).encode("utf-8")
+        payload = json.dumps({"ok": False, "message": "Rota não encontrada: " + path}).encode("utf-8")
         self.send_response(404)
         self.send_cors_headers()
         self.send_header("Content-Type", "application/json; charset=utf-8")

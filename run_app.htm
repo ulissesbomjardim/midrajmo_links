@@ -57,7 +57,15 @@
     const result = document.getElementById('result');
 
     function getApiUrl() {
-      // Em produção, usa URL relativa para funcionar em qualquer domínio/porta
+      // Detecta se está em /links/ ou raiz
+      const pathname = window.location.pathname;
+      
+      // Se está em /links/run_app.htm, volta para /links e chama /links/api/test-connection
+      if (pathname.includes('/links/')) {
+        return '/links/api/test-connection';
+      }
+      
+      // Se está em localhost:8001/run_app.htm, chama /api/test-connection
       return '/api/test-connection';
     }
 
@@ -66,14 +74,18 @@
       result.textContent = 'Executando...';
 
       try {
-        const response = await fetch(getApiUrl());
+        const url = getApiUrl();
+        console.log('Chamando:', url);
+        
+        const response = await fetch(url);
         const rawText = await response.text();
         let data;
 
         try {
           data = JSON.parse(rawText);
         } catch (_) {
-          throw new Error('Resposta inválida do servidor (não é JSON). Verifique se o app.py está rodando em http://127.0.0.1:8001');
+          console.error('Resposta não é JSON:', rawText.substring(0, 200));
+          throw new Error('Resposta inválida do servidor (não é JSON). URL chamada: ' + url);
         }
 
         if (data.ok) {
@@ -85,7 +97,7 @@
         result.textContent = JSON.stringify(data, null, 2);
       } catch (error) {
         result.className = 'err';
-        result.textContent = 'Falha ao chamar o servidor: ' + error.message + '\n\nVerifique se o app.py está rodando.';
+        result.textContent = 'Falha ao chamar o servidor:\n' + error.message + '\n\nTente novamente.';
       }
     });
   </script>
