@@ -88,3 +88,43 @@ Abra no navegador:
 A API fica em:
 
 - http://localhost:8000/api.php?action=dashboard_data
+
+## Teste de Conexão MySQL (app.py)
+
+Para testar a conexão com MySQL antes de usar o aplicativo:
+
+```bash
+python3 app.py
+```
+
+Abra no navegador:
+
+- http://127.0.0.1:8001/run_app.htm
+
+Clique em **Executar teste** para validar a conexão usando credenciais do `.env`.
+
+Requer: `pip install mysql-connector-python`
+
+## No Superdomínios
+
+1. **Suba os arquivos** (via SFTP ou painel) para `/home2/midrajmo/links`.
+2. **Crie o arquivo `.env`** no servidor com suas credenciais reais:
+   ```
+   hostname:seu_host_mysql
+   port:3306
+   username:seu_usuario
+   password:sua_senha
+   database:midrajmo_links
+   ```
+3. **Execute o schema** no MySQLman ou via CLI:
+   ```sql
+   SOURCE database/schema.sql;
+   ```
+4. **Teste a conexão** (opcional):
+   ```bash
+   source /home2/midrajmo/virtualenv/links/3.11/bin/activate
+   cd /home2/midrajmo/links
+   python3 app.py
+   # Abra http://seu_dominio:8001/run_app.htm
+   ```
+5. **Acesse o aplicativo** via browser no domínio configurado.
