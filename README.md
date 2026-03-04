@@ -47,6 +47,32 @@ password:"sua_senha"
 database:"midrajmo_links"
 ```
 
+## Produção (Superdomínios)
+
+- O arquivo `app/Config/config.php` está no `.gitignore` para não versionar credenciais.
+- Em produção, crie `app/Config/config.php` no servidor (ou use um caminho externo com `APP_PRIVATE_CONFIG`).
+- O carregamento segue esta ordem:
+	1. caminho em `APP_PRIVATE_CONFIG` (recomendado para arquivo fora de `public_html`)
+	2. `app/Config/config.php`
+	3. `app/Config/config.default.php` (fallback local via `.env`)
+
+Exemplo de `app/Config/config.php` para produção:
+
+```php
+<?php
+
+return [
+		'db' => [
+				'host' => 'SEU_HOST_MYSQL',
+				'port' => '3306',
+				'name' => 'SEU_BANCO',
+				'user' => 'SEU_USUARIO',
+				'pass' => 'SUA_SENHA',
+				'charset' => 'utf8mb4',
+		],
+];
+```
+
 ## Executar localmente
 
 Na raiz do projeto:

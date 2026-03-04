@@ -15,7 +15,18 @@ class Database
             return self::$connection;
         }
 
-        $config = require dirname(__DIR__) . '/Config/config.php';
+        $privateConfigPath = getenv('APP_PRIVATE_CONFIG');
+        $projectConfigPath = dirname(__DIR__) . '/Config/config.php';
+        $defaultConfigPath = dirname(__DIR__) . '/Config/config.default.php';
+
+        if ($privateConfigPath && is_file($privateConfigPath)) {
+            $config = require $privateConfigPath;
+        } elseif (is_file($projectConfigPath)) {
+            $config = require $projectConfigPath;
+        } else {
+            $config = require $defaultConfigPath;
+        }
+
         $db = $config['db'];
 
         $dsn = sprintf(
